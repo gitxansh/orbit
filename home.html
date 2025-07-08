@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - Productivity Hub</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* CSS RESET & BASE STYLES */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #a0c4ff; /* Outer frame color */
+            color: #333;
+            min-height: 110vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 3rem;
+        }
+
+        /* MAIN LAYOUT */
+        .content-body {
+            width: 100%;
+            max-width: 1300px;
+            background-color: #ffffff;
+            border-radius: 15px;
+            padding: 2rem 3rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* WELCOME BANNER */
+        .welcome-banner {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        .welcome-banner h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1e3a8a; /* A nice deep blue */
+        }
+
+        .welcome-banner p {
+            font-size: 1rem;
+            color: #6b7280;
+        }
+
+        /* NAVIGATION GRID */
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+            animation: slideUp 0.7s ease-out;
+        }
+
+        .nav-card {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            text-decoration: none;
+            color: #334155;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .nav-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(160, 196, 255, 0.7);
+        }
+
+        .nav-card .icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-card span {
+            font-weight: 600;
+        }
+
+/* Add this new CSS to your <style> block */
+
+/* DASHBOARD GRID FOR NEW SECTIONS */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Two equal columns */
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+    animation: slideUp 0.8s ease-out;
+}
+
+.dashboard-card {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 15px;
+    padding: 1.5rem;
+}
+
+.dashboard-card h3 {
+    margin-bottom: 1rem;
+    color: #1e3a8a;
+    border-bottom: 2px solid #eef2ff;
+    padding-bottom: 0.5rem;
+}
+
+/* Today's Focus List */
+#today-focus ul {
+    list-style: none;
+}
+
+#today-focus li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
+
+#today-focus input[type="checkbox"] {
+    margin-right: 0.75rem;
+    width: 18px;
+    height: 18px;
+}
+
+#today-focus label {
+    color: #334155;
+}
+
+#today-focus input[type="checkbox"]:checked + label {
+    text-decoration: line-through;
+    color: #94a3b8;
+}
+
+/* Quick Notes Textarea */
+#quick-notes textarea {
+    width: 100%;
+    height: 150px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 0.75rem;
+    font-family: 'Poppins', sans-serif;
+    background-color: #fff;
+    resize: none; /* Disables resizing */
+}
+
+/* Make the new grid responsive */
+@media (max-width: 768px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr; /* Stack on mobile */
+    }
+}
+
+        /* MOTIVATIONAL QUOTE CONTAINER */
+        .quote-container {
+            background-color: #eef2ff; /* Light lavender background */
+            border-radius: 15px;
+            padding: 1.5rem 2rem;
+            text-align: center;
+            animation: slideUp 0.8s ease-out;
+        }
+
+        .quote-container blockquote p {
+            font-size: 1.1rem;
+            font-style: italic;
+            color: #4338ca;
+            margin-bottom: 1rem;
+            min-height: 50px; /* Prevents layout shift */
+        }
+
+        #next-quote-btn {
+            background-color: #4f46e5;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.6rem 1.2rem;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        
+        #next-quote-btn:hover {
+            background-color: #3730a3;
+        }
+
+        /* THEME TOGGLE */
+        .header-top {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 1rem;
+        }
+
+        .theme-toggle {
+            position: relative;
+        }
+
+        .theme-btn {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 25px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .theme-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .theme-btn .moon-icon {
+            display: none;
+        }
+
+        /* DARK MODE STYLES */
+        [data-theme="dark"] {
+            background-color: #1e293b;
+        }
+
+        [data-theme="dark"] .content-body {
+            background-color: #334155;
+            color: #e2e8f0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        [data-theme="dark"] .welcome-banner h1 {
+            color: #60a5fa;
+        }
+
+        [data-theme="dark"] .welcome-banner p {
+            color: #94a3b8;
+        }
+
+        [data-theme="dark"] .nav-card {
+            background-color: #475569;
+            border-color: #64748b;
+            color: #e2e8f0;
+        }
+
+        [data-theme="dark"] .nav-card:hover {
+            background-color: #526074;
+            box-shadow: 0 8px 20px rgba(96, 165, 250, 0.3);
+        }
+
+        [data-theme="dark"] .dashboard-card {
+            background-color: #475569;
+            border-color: #64748b;
+            color: #e2e8f0;
+        }
+
+        [data-theme="dark"] .dashboard-card h3 {
+            color: #60a5fa;
+            border-bottom-color: #475569;
+        }
+
+        [data-theme="dark"] #today-focus label {
+            color: #cbd5e1;
+        }
+
+        [data-theme="dark"] #today-focus input[type="checkbox"]:checked + label {
+            color: #64748b;
+        }
+
+        [data-theme="dark"] #quick-notes textarea {
+            background-color: #1e293b;
+            border-color: #475569;
+            color: #e2e8f0;
+        }
+
+        [data-theme="dark"] #quick-notes textarea::placeholder {
+            color: #94a3b8;
+        }
+
+        [data-theme="dark"] .quote-container {
+            background-color: #475569;
+            border: 1px solid #64748b;
+        }
+
+        [data-theme="dark"] .quote-container blockquote p {
+            color: #a5b4fc;
+        }
+
+        [data-theme="dark"] #next-quote-btn {
+            background-color: #3b82f6;
+        }
+
+        [data-theme="dark"] #next-quote-btn:hover {
+            background-color: #2563eb;
+        }
+
+        [data-theme="dark"] .theme-btn {
+            background-color: #475569;
+            border-color: #64748b;
+            color: #e2e8f0;
+        }
+
+        [data-theme="dark"] .theme-btn .sun-icon {
+            display: none;
+        }
+
+        [data-theme="dark"] .theme-btn .moon-icon {
+            display: inline;
+        }
+
+        /* SMOOTH TRANSITIONS FOR THEME CHANGE */
+        *, *::before, *::after {
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .content-body, .nav-card, .dashboard-card, .quote-container, .theme-btn, #quick-notes textarea {
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        /* RESPONSIVE DESIGN */
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+            .content-body {
+                padding: 1.5rem;
+            }
+            .welcome-banner h1 {
+                font-size: 2rem;
+            }
+            .nav-grid {
+                grid-template-columns: 1fr 1fr; /* 2 cards per row on mobile */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <main class="content-body">
+
+        <header class="welcome-banner">
+            <div class="header-top">
+                <div class="theme-toggle">
+                    <button id="theme-toggle-btn" class="theme-btn">
+                        <span class="sun-icon">☀️</span>
+                        <span class="moon-icon">🌙</span>
+                    </button>
+                </div>
+            </div>
+            <h1 id="greeting"></h1>
+            <p id="datetime"></p>
+        </header>
+
+        <nav class="nav-grid">
+            <a href="todo.html" class="nav-card">
+                <div class="icon">📋</div>
+                <span>To-Do List</span>
+            </a>
+            <a href="calendar.html" class="nav-card">
+                <div class="icon">📅</div>
+                <span>Calendar</span>
+            </a>
+            <a href="finance.html" class="nav-card">
+                <div class="icon">💰</div>
+                <span>Finance Tracker</span>
+            </a>
+            <a href="habit.html" class="nav-card">
+                <div class="icon">🎯</div>
+                <span>Habit Tracker</span>
+            </a>
+            <a href="health.html" class="nav-card">
+                <div class="icon">🏥</div>
+                <span>Health Tracker</span>
+            </a>
+        </nav>
+        
+<div class="dashboard-grid">
+    <section class="dashboard-card" id="today-focus">
+        <h3>Today's Focus</h3>
+        <ul>
+            <li>
+                <input type="checkbox" id="task1">
+                <label for="task1">Finish capstone project proposal</label>
+            </li>
+            <li>
+                <input type="checkbox" id="task2">
+                <label for="task2">Team meeting at 2 PM</label>
+            </li>
+            <li>
+                <input type="checkbox" id="task3" checked>
+                <label for="task3">Review design mockups</label>
+            </li>
+        </ul>
+    </section>
+
+    <section class="dashboard-card" id="quick-notes">
+        <h3>Quick Notes</h3>
+        <textarea placeholder="Jot down a quick thought..."></textarea>
+    </section>
+</div>
+
+        <section class="quote-container">
+            <blockquote id="quote-text">
+                <p>Loading your daily dose of motivation...</p>
+            </blockquote>
+            <button id="next-quote-btn">Next Quote</button>
+        </section>
+
+    </main>
+
+    <script>
+        // Wrap all JS in a DOMContentLoaded event listener to ensure the HTML is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- 0. THEME TOGGLE FUNCTIONALITY ---
+            const themeToggleBtn = document.getElementById('theme-toggle-btn');
+            const body = document.body;
+            
+            // Check for saved theme preference or default to light mode
+            const currentTheme = localStorage.getItem('theme') || 'light';
+            body.setAttribute('data-theme', currentTheme);
+
+            // Theme toggle event listener
+            themeToggleBtn.addEventListener('click', () => {
+                const currentTheme = body.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                
+                body.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                
+                // Add a little animation effect
+                themeToggleBtn.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    themeToggleBtn.style.transform = 'scale(1)';
+                }, 150);
+            });
+
+            // --- 1. DYNAMIC GREETING AND REAL-TIME CLOCK ---
+            const greetingEl = document.getElementById('greeting');
+            const datetimeEl = document.getElementById('datetime');
+            const userName = "Ansh"; // You can make this dynamic later
+
+            function updateHeader() {
+                const now = new Date();
+                const hours = now.getHours();
+
+                // Set greeting based on time of day
+                let greetingText;
+                if (hours < 12) {
+                    greetingText = "Good Morning";
+                } else if (hours < 18) {
+                    greetingText = "Good Afternoon";
+                } else {
+                    greetingText = "Good Evening";
+                }
+                greetingEl.textContent = `${greetingText}, ${userName}!`;
+
+                // Set current date and time
+                const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                const timeOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
+                datetimeEl.textContent = `${now.toLocaleDateString('en-US', dateOptions)} | ${now.toLocaleTimeString('en-US', timeOptions)}`;
+            }
+
+            // Update the header immediately and then every second
+            updateHeader();
+            setInterval(updateHeader, 1000);
+
+
+            // --- 2. MOTIVATIONAL QUOTE SWITCHER ---
+            const quoteEl = document.getElementById('quote-text').querySelector('p');
+            const nextQuoteBtn = document.getElementById('next-quote-btn');
+
+            const quotes = [
+                "The secret of getting ahead is getting started.",
+                "The only way to do great work is to love what you do.",
+                "Believe you can and you're halfway there.",
+                "Productivity is never an accident. It is always the result of a commitment to excellence.",
+                "Don’t watch the clock; do what it does. Keep going."
+            ];
+
+            let currentQuoteIndex = 0;
+
+            function showNextQuote() {
+                // Fade out the text
+                quoteEl.style.opacity = 0;
+                
+                setTimeout(() => {
+                    // Update the index, looping back to the start if necessary
+                    currentQuoteIndex = (currentQuoteIndex + 1) % quotes.length;
+                    // Change the text
+                    quoteEl.textContent = `"${quotes[currentQuoteIndex]}"`;
+                    // Fade in the new text
+                    quoteEl.style.opacity = 1;
+                }, 300); // Wait for fade-out to finish
+            }
+            
+            // Add click event listener to the button
+            nextQuoteBtn.addEventListener('click', showNextQuote);
+
+            // Display the initial quote on page load
+            quoteEl.textContent = `"${quotes[0]}"`;
+            quoteEl.style.transition = 'opacity 0.3s ease-in-out';
+        });
+    </script>
+
+</body>
+</html>
