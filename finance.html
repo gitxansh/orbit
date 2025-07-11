@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finance Tracker - Productivity Hub</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        /* CSS RESET & BASE STYLES */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #a0c4ff;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 2rem;
+        }
+
+        .content-body {
+            width: 100%;
+            max-width: 1600px;
+            background-color: #ffffff;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* HEADER */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #eef2ff;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1e3a8a;
+        }
+
+        .back-btn {
+            background-color: #4f46e5;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.8rem 1.5rem;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.2s ease;
+        }
+
+        .back-btn:hover {
+            background-color: #3730a3;
+        }
+
+        /* FINANCIAL OVERVIEW */
+        .financial-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .overview-card {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .overview-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #4f46e5, #10b981);
+        }
+
+        .overview-card.income::before {
+            background: linear-gradient(90deg, #10b981, #059669);
+        }
+
+        .overview-card.expense::before {
+            background: linear-gradient(90deg, #ef4444, #dc2626);
+        }
+
+        .overview-card.savings::before {
+            background: linear-gradient(90deg, #8b5cf6, #7c3aed);
+        }
+
+        .overview-card.investment::before {
+            background: linear-gradient(90deg, #f59e0b, #d97706);
+        }
+
+        .overview-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .overview-amount {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1e3a8a;
+            margin-bottom: 0.5rem;
+        }
+
+        .overview-label {
+            font-size: 0.9rem;
+            color: #6b7280;
+            margin-bottom: 0.5rem;
+        }
+
+        .overview-change {
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+        }
+
+        .overview-change.positive {
+            background-color: #dcfce7;
+            color: #16a34a;
+        }
+
+        .overview-change.negative {
+            background-color: #fee2e2;
+            color: #dc2626;
+        }
+
+        /* MAIN CONTENT GRID */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        /* TRANSACTION FORM */
+        .transaction-form {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 1.5rem;
+        }
+
+        .transaction-form h3 {
+            color: #1e3a8a;
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .transaction-type-tabs {
+            display: flex;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 0.8rem;
+            background-color: #f9fafb;
+            border: none;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn.active {
+            background-color: #4f46e5;
+            color: white;
+        }
+
+        .tab-btn.income.active {
+            background-color: #10b981;
+        }
+
+        .tab-btn.expense.active {
+            background-color: #ef4444;
+        }
+
+        .submit-btn {
+            background-color: #4f46e5;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.8rem 1.5rem;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.2s ease;
+        }
+
+        .submit-btn:hover {
+            background-color: #3730a3;
+        }
+
+        /* RECENT TRANSACTIONS */
+        .recent-transactions {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 1.5rem;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .recent-transactions h3 {
+            color: #1e3a8a;
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+        }
+
+        .transaction-item {
+            background-color: white;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .transaction-details {
+            flex: 1;
+        }
+
+        .transaction-description {
+            font-weight: 600;
+            color: #1e3a8a;
+            margin-bottom: 0.3rem;
+        }
+
+        .transaction-meta {
+            font-size: 0.8rem;
+            color: #6b7280;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .transaction-amount {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .transaction-amount.income {
+            color: #10b981;
+        }
+
+        .transaction-amount.expense {
+            color: #ef4444;
+        }
+
+        .transaction-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.3rem;
+            border-radius: 5px;
+            transition: background-color 0.2s ease;
+        }
+
+        .action-btn:hover {
+            background-color: #f3f4f6;
+        }
+
+        .edit-btn {
+            color: #3b82f6;
+        }
+
+        .delete-btn {
+            color: #ef4444;
+        }
+
+        /* CHARTS SECTION */
+        .charts-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-panel {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 1.5rem;
+        }
+
+        .chart-panel h3 {
+            color: #1e3a8a;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .chart-container {
+            height: 300px;
+            margin-bottom: 1rem;
+        }
+
+        /* GOALS SECTION */
+        .goals-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .goals-panel {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 1.5rem;
+        }
+
+        .goals-panel h3 {
+            color: #1e3a8a;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .goal-item {
+            background-color: white;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .goal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .goal-name {
+            font-weight: 600;
+            color: #1e3a8a;
+        }
+
+        .goal-amount {
+            font-weight: 700;
+            color: #10b981;
+        }
+
+        .goal-progress {
+            width: 100%;
+            height: 8px;
+            background-color: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+
+        .goal-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981, #059669);
+            transition: width 0.3s ease;
+        }
+
+        .goal-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+
+        /* BUDGET TRACKER */
+        .budget-tracker {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 1.5rem;
+        }
+
+        .budget-tracker h3 {
+            color: #1e3a8a;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .budget-category {
+            background-color: white;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .budget-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .budget-name {
+            font-weight: 600;
+            color: #1e3a8a;
+        }
+
+        .budget-amounts {
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+
+        .budget-progress {
+            width: 100%;
+            height: 8px;
+            background-color: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+
+        .budget-progress-fill {
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        .budget-progress-fill.safe {
+            background: linear-gradient(90deg, #10b981, #059669);
+        }
+
+        .budget-progress-fill.warning {
+            background: linear-gradient(90deg, #f59e0b, #d97706);
+        }
+
+        .budget-progress-fill.danger {
+            background: linear-gradient(90deg, #ef4444, #dc2626);
+        }
+
+        .budget-status {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-align: right;
+        }
+
+        .budget-status.safe {
+            color: #16a34a;
+        }
+
+        .budget-status.warning {
+            color: #d97706;
+        }
+
+        .budget-status.danger {
+            color: #dc2626;
+        }
+
+        /* RESPONSIVE DESIGN */
+        @media (max-width: 1024px) {
+            .main-content,
+            .charts-section,
+            .goals-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+            
+            .content-body {
+                padding: 1.5rem;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .financial-overview {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .form-row {
+                flex-direction: column;
+            }
+        }
+
+        /* DARK MODE STYLES */
+        [data-theme="dark"] {
+            background-color: #1e293b;
+        }
+
+        [data-theme="dark"] .content-body {
+            background-color: #334155;
+            color: #e2e8f0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        [data-theme="dark"] .header h1 {
+            color: #60a5fa;
+        }
+
+        [data-theme="dark"] .back-btn {
+            background-color: #3b82f6;
+        }
+
+        [data-theme="dark"] .back-btn:hover {
+            background-color: #2563eb;
+        }
+
+        [data-theme="dark"] .overview-card {
+            background-color: #475569;
+            border-color: #64748b;
+            color: #e2e8f0;
+        }
+
+        [data-theme="dark"] .overview-amount {
+            color: #60a5fa;
+        }
+
+        [data-theme="dark"] .overview-label {
+            color: #94a3b8;
+        }
+
+        [data-theme="dark"] .transaction-form,
+        [data-theme="dark"] .recent-transactions,
+        [data-theme="dark"] .chart-panel,
+        [data-theme="dark"] .goals-panel,
+        [data-theme="dark"] .budget-tracker {
+            background-color: #475569;
+            border-color: #64748b;
+            color: #e2e8f0;
+        }
+
+        [data-theme="dark"] .transaction-form h3,
+        [data-theme="dark"] .recent-transactions h3,
+        [data-theme="dark"] .chart-panel h3,
+        [data-theme="dark"] .goals-panel h3,
+        [data-theme="dark"] .budget-tracker h3 {
+            color: #60a5fa;
+        }
+
+        [data-theme="dark"] .form-group input,
+        [data-theme="dark"] .form-group select,
+        [data-theme="dark"] .form-group textarea {
+            background-color: #1e293b;
+            border-color: #475569;
+            color: #e2e8f0;
+        }
+
+        [data-theme="dark"] .form-group input::placeholder,
+        [data-theme="dark"] .form-group textarea::placeholder {
+            color: #94a3b8;
+        }
+
+        [data-theme="dark"] .form-group label {
+            color: #cbd5e1;
+        }
+
+        [data-theme="dark"] .tab-btn {
+            background-color: #334155;
+            border-color: #475569;
+            color: #e2e8f0;
+        }
+
+        [data-theme="dark"] .tab-btn.active {
+            background-color: #3b82f6;
+        }
+
+        [data-theme="dark"] .tab-btn.income.active {
+            background-color: #059669;
+        }
+
+        [data-theme="dark"] .tab-btn.expense.active {
+            background-color: #dc2626;
+        }
+
+        [data-theme="dark"] .submit-btn {
+            background-color: #3b82f6;
+        }
+
+        [data-theme="dark"] .submit-btn:hover {
+            background-color: #2563eb;
+        }
+
+        [data-theme="dark"] .transaction-item {
+            background-color: #1e293b;
+            border-color: #475569;
+        }
+
+        [data-theme="dark"] .transaction-description {
+            color: #60a5fa;
+        }
+
+        [data-theme="dark"] .transaction-meta {
+            color: #94a3b8;
+        }
+
+        [data-theme="dark"] .action-btn:hover {
+            background-color: #334155;
+        }
+
+        [data-theme="dark"] .goal-item,
+        [data-theme="dark"] .budget-category {
+            background-color: #1e293b;
+            border-color: #475569;
+        }
+
+        [data-theme="dark"] .goal-name,
+        [data-theme="dark"] .budget-name {
+            color: #60a5fa;
+        }
+
+        [data-theme="dark"] .goal-amount,
+        [data-theme="dark"] .budget-amounts {
+            color: #94a3b8;
+        }
+
+        [data-theme="dark"] .goal-meta {
+            color: #94a3b8;
+        }
+
+        /* THEME TOGGLE BUTTON */
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .theme-btn {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 25px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .theme-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .theme-btn .moon-icon {
+            display: none;
+        }
+
+        [data-theme="dark"] .theme-btn {
+            background-color: #475569;
+            border-color: #64748b;
+            color: #e2e8f0;
+        }
+
+        [data-theme="dark"] .theme-btn .sun-icon {
+            display: none;
+        }
+
+        [data-theme="dark"] .theme-btn .moon-icon {
+            display: inline;
+        }
+
+        /* SMOOTH TRANSITIONS FOR THEME CHANGE */
+        *, *::before, *::after {
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+
+    <main class="content-body">
+        <header class="header">
+            <h1>💰 Finance Tracker</h1>
+            <div class="header-actions">
+                <button id="theme-toggle-btn" class="theme-btn">
+                    <span class="sun-icon">☀️</span>
+                    <span class="moon-icon">🌙</span>
+                </button>
+                <a href="index.html" class="back-btn">← Back to Home</a>
+            </div>
+        </header>
+
+        <!-- Financial Overview -->
+        <div class="financial-overview">
+            <div class="overview-card income">
+                <div class="overview-icon">💰</div>
+                <div class="overview-amount" id="totalIncome">₹0</div>
+                <div class="overview-label">Total Income</div>
+                <div class="overview-change positive" id="incomeChange">+0%</div>
+            </div>
+            <div class="overview-card expense">
+                <div class="overview-icon">💸</div>
+                <div class="overview-amount" id="totalExpense">₹0</div>
+                <div class="overview-label">Total Expenses</div>
+                <div class="overview-change negative" id="expenseChange">+0%</div>
+            </div>
+            <div class="overview-card savings">
+                <div class="overview-icon">🏦</div>
+                <div class="overview-amount" id="totalSavings">₹0</div>
+                <div class="overview-label">Total Savings</div>
+                <div class="overview-change positive" id="savingsChange">+0%</div>
+            </div>
+            <div class="overview-card investment">
+                <div class="overview-icon">📈</div>
+                <div class="overview-amount" id="totalInvestment">₹0</div>
+                <div class="overview-label">Investments</div>
+                <div class="overview-change positive" id="investmentChange">+0%</div>
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="main-content">
+            <!-- Transaction Form -->
+            <section class="transaction-form">
+                <h3>Add Transaction</h3>
+                
+                <div class="transaction-type-tabs">
+                    <button class="tab-btn income active" data-type="income">Income</button>
+                    <button class="tab-btn expense" data-type="expense">Expense</button>
+                </div>
+
+                <form id="transactionForm">
+                    <div class="form-group">
+                        <label for="transactionDescription">Description</label>
+                        <input type="text" id="transactionDescription" placeholder="Enter transaction description" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="transactionAmount">Amount</label>
+                            <input type="number" id="transactionAmount" placeholder="0.00" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="transactionCategory">Category</label>
+                            <select id="transactionCategory" required>
+                                <option value="">Select Category</option>
+                                <!-- Categories will be populated by JavaScript -->
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="transactionDate">Date</label>
+                            <input type="date" id="transactionDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="transactionPaymentMethod">Payment Method</label>
+                            <select id="transactionPaymentMethod" required>
+                                <option value="">Select Payment Method</option>
+                                <option value="cash">Cash</option>
+                                <option value="card">Card</option>
+                                <option value="upi">UPI</option>
+                                <option value="netbanking">Net Banking</option>
+                                <option value="wallet">Wallet</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="transactionNotes">Notes (Optional)</label>
+                        <textarea id="transactionNotes" placeholder="Additional notes..."></textarea>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn">Add Transaction</button>
+                </form>
+            </section>
+
+            <!-- Recent Transactions -->
+            <section class="recent-transactions">
+                <h3>Recent Transactions</h3>
+                <div id="transactionsList">
+                    <!-- Transactions will be dynamically added here -->
+                </div>
+            </section>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-section">
+            <section class="chart-panel">
+                <h3>Monthly Overview</h3>
+                <div class="chart-container">
+                    <canvas id="monthlyChart"></canvas>
+                </div>
+            </section>
+            
+            <section class="chart-panel">
+                <h3>Category Breakdown</h3>
+                <div class="chart-container">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </section>
+        </div>
+
+        <!-- Goals Section -->
+        <div class="goals-section">
+            <section class="goals-panel">
+                <h3>Savings Goals</h3>
+                <div id="savingsGoals">
+                    <div class="goal-item">
+                        <div class="goal-header">
+                            <div class="goal-name">Emergency Fund</div>
+                            <div class="goal-amount">₹25,000 / ₹100,000</div>
+                        </div>
+                        <div class="goal-progress">
+                            <div class="goal-progress-fill" style="width: 25%"></div>
+                        </div>
+                        <div class="goal-meta">
+                            <span>25% Complete</span>
+                            <span>₹75,000 to go</span>
+                        </div>
+                    </div>
+                    
+                    <div class="goal-item">
+                        <div class="goal-header">
+                            <div class="goal-name">Vacation Fund</div>
+                            <div class="goal-amount">₹15,000 / ₹50,000</div>
+                        </div>
+                        <div class="goal-progress">
+                            <div class="goal-progress-fill" style="width: 30%"></div>
+                        </div>
+                        <div class="goal-meta">
+                            <span>30% Complete</span>
+                            <span>₹35,000 to go</span>
+                        </div>
+                    </div>
+                    
+                    <div class="goal-item">
+                        <div class="goal-header">
+                            <div class="goal-name">New Laptop</div>
+                            <div class="goal-amount">₹40,000 / ₹80,000</div>
+                        </div>
+                        <div class="goal-progress">
+                            <div class="goal-progress-fill" style="width: 50%"></div>
+                        </div>
+                        <div class="goal-meta">
+                            <span>50% Complete</span>
+                            <span>₹40,000 to go</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="budget-tracker">
+                <h3>Budget Tracker</h3>
+                <div id="budgetCategories">
+                    <div class="budget-category">
+                        <div class="budget-header">
+                            <div class="budget-name">Food & Dining</div>
+                            <div class="budget-amounts">₹8,500 / ₹15,000</div>
+                        </div>
+                        <div class="budget-progress">
+                            <div class="budget-progress-fill safe" style="width: 57%"></div>
+                        </div>
+                        <div class="budget-status safe">57% - Within Budget</div>
+                    </div>
+                    
+                    <div class="budget-category">
+                        <div class="budget-header">
+                            <div class="budget-name">Transportation</div>
+                            <div class="budget-amounts">₹4,200 / ₹5,000</div>
+                        </div>
+                        <div class="budget-progress">
+                            <div class="budget-progress-fill warning" style="width: 84%"></div>
+                        </div>
+                        <div class="budget-status warning">84% - Approaching Limit</div>
+                    </div>
+                    
+                    <div class="budget-category">
+                        <div class="budget-header">
+                            <div class="budget-name">Entertainment</div>
+                            <div class="budget-amounts">₹3,800 / ₹3,000</div>
+                        </div>
+                        <div class="budget-progress">
+                            <div class="budget-progress-fill danger" style="width: 100%"></div>
+                        </div>
+                        <div class="budget-status danger">127% - Over Budget</div>
+                    </div>
+                    
+                    <div class="budget-category">
+                        <div class="budget-header">
+                            <div class="budget-name">Shopping</div>
+                            <div class="budget-amounts">₹2,100 / ₹8,000</div>
+                        </div>
+                        <div class="budget-progress">
+                            <div class="budget-progress-fill safe" style="width: 26%"></div>
+                        </div>
+                        <div class="budget-status safe">26% - Well Within Budget</div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        // Finance Tracker Application
+        class FinanceTracker {
+            constructor() {
+                this.transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+                this.currentTransactionType = 'income';
+                this.incomeCategories = ['Salary', 'Freelance', 'Business', 'Investment Returns', 'Rental Income', 'Other Income'];
+                this.expenseCategories = ['Food & Dining', 'Transportation', 'Shopping', 'Entertainment', 'Bills & Utilities', 'Healthcare', 'Education', 'Travel', 'Other Expenses'];
+                this.init();
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.setupCategories();
+                this.setDefaultDate();
+                this.renderTransactions();
+                this.updateOverview();
+                this.initializeCharts();
+            }
+
+            setupEventListeners() {
+                // Transaction type tabs
+                document.querySelectorAll('.tab-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                        e.target.classList.add('active');
+                        this.currentTransactionType = e.target.dataset.type;
+                        this.setupCategories();
+                    });
+                });
+
+                // Transaction form
+                document.getElementById('transactionForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.addTransaction();
+                });
+            }
+
+            setupCategories() {
+                const categorySelect = document.getElementById('transactionCategory');
+                const categories = this.currentTransactionType === 'income' ? this.incomeCategories : this.expenseCategories;
+                
+                categorySelect.innerHTML = '<option value="">Select Category</option>';
+                categories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category;
+                    option.textContent = category;
+                    categorySelect.appendChild(option);
+                });
+            }
+
+            setDefaultDate() {
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('transactionDate').value = today;
+            }
+
+            addTransaction() {
+                const transaction = {
+                    id: Date.now(),
+                    type: this.currentTransactionType,
+                    description: document.getElementById('transactionDescription').value,
+                    amount: parseFloat(document.getElementById('transactionAmount').value),
+                    category: document.getElementById('transactionCategory').value,
+                    date: document.getElementById('transactionDate').value,
+                    paymentMethod: document.getElementById('transactionPaymentMethod').value,
+                    notes: document.getElementById('transactionNotes').value,
+                    created: new Date().toISOString()
+                };
+
+                this.transactions.push(transaction);
+                this.saveTransactions();
+                this.renderTransactions();
+                this.updateOverview();
+                this.clearForm();
+                
+                // Show success message
+                alert('Transaction added successfully!');
+            }
+
+            renderTransactions() {
+                const transactionsList = document.getElementById('transactionsList');
+                
+                // Sort transactions by date (newest first)
+                const sortedTransactions = this.transactions
+                    .sort((a, b) => new Date(b.date) - new Date(a.date))
+                    .slice(0, 10); // Show only last 10 transactions
+
+                transactionsList.innerHTML = sortedTransactions.map(transaction => `
+                    <div class="transaction-item">
+                        <div class="transaction-details">
+                            <div class="transaction-description">${transaction.description}</div>
+                            <div class="transaction-meta">
+                                <span>📁 ${transaction.category}</span>
+                                <span>💳 ${transaction.paymentMethod}</span>
+                                <span>📅 ${new Date(transaction.date).toLocaleDateString()}</span>
+                            </div>
+                        </div>
+                        <div class="transaction-amount ${transaction.type}">
+                            ${transaction.type === 'income' ? '+' : '-'}₹${transaction.amount.toFixed(2)}
+                        </div>
+                        <div class="transaction-actions">
+                            <button class="action-btn edit-btn" onclick="financeTracker.editTransaction(${transaction.id})">✏️</button>
+                            <button class="action-btn delete-btn" onclick="financeTracker.deleteTransaction(${transaction.id})">🗑️</button>
+                        </div>
+                    </div>
+                `).join('');
+
+                if (sortedTransactions.length === 0) {
+                    transactionsList.innerHTML = '<p style="text-align: center; color: #6b7280;">No transactions yet</p>';
+                }
+            }
+
+            updateOverview() {
+                const totalIncome = this.transactions
+                    .filter(t => t.type === 'income')
+                    .reduce((sum, t) => sum + t.amount, 0);
+
+                const totalExpense = this.transactions
+                    .filter(t => t.type === 'expense')
+                    .reduce((sum, t) => sum + t.amount, 0);
+
+                const totalSavings = totalIncome - totalExpense;
+                const totalInvestment = 50000; // Mock data
+
+                document.getElementById('totalIncome').textContent = `₹${totalIncome.toFixed(2)}`;
+                document.getElementById('totalExpense').textContent = `₹${totalExpense.toFixed(2)}`;
+                document.getElementById('totalSavings').textContent = `₹${totalSavings.toFixed(2)}`;
+                document.getElementById('totalInvestment').textContent = `₹${totalInvestment.toFixed(2)}`;
+
+                // Update change percentages (mock data)
+                document.getElementById('incomeChange').textContent = '+12%';
+                document.getElementById('expenseChange').textContent = '+8%';
+                document.getElementById('savingsChange').textContent = '+15%';
+                document.getElementById('investmentChange').textContent = '+7%';
+            }
+
+            initializeCharts() {
+                this.initMonthlyChart();
+                this.initCategoryChart();
+            }
+
+            initMonthlyChart() {
+                const ctx = document.getElementById('monthlyChart').getContext('2d');
+                
+                // Generate monthly data
+                const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+                const incomeData = [45000, 50000, 48000, 52000, 55000, 58000];
+                const expenseData = [35000, 38000, 36000, 40000, 42000, 45000];
+
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: months,
+                        datasets: [{
+                            label: 'Income',
+                            data: incomeData,
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            fill: true
+                        }, {
+                            label: 'Expenses',
+                            data: expenseData,
+                            borderColor: '#ef4444',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return '₹' + value.toLocaleString();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            initCategoryChart() {
+                const ctx = document.getElementById('categoryChart').getContext('2d');
+                
+                // Calculate category totals
+                const categoryTotals = {};
+                this.transactions.forEach(transaction => {
+                    if (transaction.type === 'expense') {
+                        categoryTotals[transaction.category] = (categoryTotals[transaction.category] || 0) + transaction.amount;
+                    }
+                });
+
+                const labels = Object.keys(categoryTotals);
+                const data = Object.values(categoryTotals);
+
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: data,
+                            backgroundColor: [
+                                '#4f46e5',
+                                '#10b981',
+                                '#f59e0b',
+                                '#ef4444',
+                                '#8b5cf6',
+                                '#06b6d4',
+                                '#84cc16',
+                                '#f97316'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            }
+
+            editTransaction(id) {
+                // Find the transaction
+                const transaction = this.transactions.find(t => t.id === id);
+                if (!transaction) return;
+
+                // Populate form with transaction data
+                document.getElementById('transactionDescription').value = transaction.description;
+                document.getElementById('transactionAmount').value = transaction.amount;
+                document.getElementById('transactionCategory').value = transaction.category;
+                document.getElementById('transactionDate').value = transaction.date;
+                document.getElementById('transactionPaymentMethod').value = transaction.paymentMethod;
+                document.getElementById('transactionNotes').value = transaction.notes;
+
+                // Set transaction type
+                document.querySelectorAll('.tab-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                    if (btn.dataset.type === transaction.type) {
+                        btn.classList.add('active');
+                    }
+                });
+                this.currentTransactionType = transaction.type;
+                this.setupCategories();
+
+                // Remove the transaction (it will be re-added when form is submitted)
+                this.deleteTransaction(id);
+            }
+
+            deleteTransaction(id) {
+                if (confirm('Are you sure you want to delete this transaction?')) {
+                    this.transactions = this.transactions.filter(t => t.id !== id);
+                    this.saveTransactions();
+                    this.renderTransactions();
+                    this.updateOverview();
+                }
+            }
+
+            clearForm() {
+                document.getElementById('transactionForm').reset();
+                this.setDefaultDate();
+            }
+
+            saveTransactions() {
+                localStorage.setItem('transactions', JSON.stringify(this.transactions));
+            }
+        }
+
+        // Initialize the Finance Tracker
+        const financeTracker = new FinanceTracker();
+
+        // Theme toggle functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeToggleBtn = document.getElementById('theme-toggle-btn');
+            const body = document.body;
+            
+            // Check for saved theme preference or default to light mode
+            const currentTheme = localStorage.getItem('theme') || 'light';
+            body.setAttribute('data-theme', currentTheme);
+
+            // Theme toggle event listener
+            themeToggleBtn.addEventListener('click', () => {
+                const currentTheme = body.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                
+                body.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                
+                // Add a little animation effect
+                themeToggleBtn.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    themeToggleBtn.style.transform = 'scale(1)';
+                }, 150);
+            });
+        });
+    </script>
+
+</body>
+</html>

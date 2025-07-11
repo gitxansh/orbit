@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Chatbot</title>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f3f4f6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .chat-container {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      max-width: 600px;
+      height: 80vh;
+      background-color: #ffffff;
+      border-radius: 1rem;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+        0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+      border: 1px solid #e5e7eb;
+    }
+
+    .chat-header {
+      background-color: #4f46e5;
+      color: #ffffff;
+      padding: 1rem 1.5rem;
+      font-size: 1.25rem;
+      font-weight: 600;
+      border-top-left-radius: 1rem;
+      border-top-right-radius: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .chat-header svg {
+      fill: currentColor;
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+
+    .chat-messages {
+      flex-grow: 1;
+      padding: 1.5rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      scroll-behavior: smooth;
+    }
+
+    .message-bubble {
+      max-width: 80%;
+      padding: 0.75rem 1rem;
+      border-radius: 1rem;
+      word-wrap: break-word;
+    }
+
+    .user-message {
+      background-color: #e0e7ff;
+      align-self: flex-end;
+      color: #1f2937;
+      border-bottom-right-radius: 0.25rem;
+    }
+
+    .ai-message {
+      background-color: #f3f4f6;
+      align-self: flex-start;
+      color: #1f2937;
+      border-bottom-left-radius: 0.25rem;
+    }
+
+    .loading-indicator {
+      align-self: flex-start;
+      padding: 0.75rem 1rem;
+      border-radius: 1rem;
+      background-color: #f3f4f6;
+      color: #4b5563;
+      font-style: italic;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.7; }
+      50% { opacity: 1; }
+      100% { opacity: 0.7; }
+    }
+
+    .chat-input-area {
+      display: flex;
+      padding: 1rem 1.5rem;
+      border-top: 1px solid #e5e7eb;
+      background-color: #ffffff;
+      gap: 0.75rem;
+      border-bottom-left-radius: 1rem;
+      border-bottom-right-radius: 1rem;
+    }
+
+    .chat-input {
+      flex-grow: 1;
+      padding: 0.75rem 1rem;
+      border: 1px solid #d1d5db;
+      border-radius: 0.75rem;
+      outline: none;
+      font-size: 1rem;
+      color: #1f2937;
+      transition: border-color 0.2s ease-in-out;
+    }
+
+    .chat-input:focus {
+      border-color: #4f46e5;
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+    }
+
+    .send-button {
+      background-color: #4f46e5;
+      color: #ffffff;
+      padding: 0.75rem 1.25rem;
+      border-radius: 0.75rem;
+      border: none;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .send-button:hover {
+      background-color: #4338ca;
+      transform: translateY(-1px);
+    }
+
+    .send-button:active {
+      transform: translateY(0);
+      background-color: #3730a3;
+    }
+
+    .send-button:disabled {
+      background-color: #9ca3af;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    @media (max-width: 768px) {
+      .chat-container {
+        height: 95vh;
+        border-radius: 0;
+        box-shadow: none;
+      }
+
+      body {
+        padding: 0;
+      }
+
+      .chat-header {
+        border-radius: 0;
+      }
+
+      .chat-input-area {
+        border-radius: 0;
+      }
+    }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="chat-container">
+    <div class="chat-header">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+        <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
+      </svg>
+      <i>Chatbot</i>
+    </div>
+
+    <div class="chat-messages" id="chat-messages">
+      <div class="ai-message message-bubble"><br>How can I help you today?</div>
+    </div>
+
+    <div class="chat-input-area">
+      <input type="text" id="user-input" class="chat-input" placeholder="Type your message...">
+      <button id="send-button" class="send-button">
+        Send
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+          <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const chatMessages = document.getElementById('chat-messages');
+    const userInput = document.getElementById('user-input');
+    const sendButton = document.getElementById('send-button');
+
+    function addMessage(text, sender) {
+      const messageDiv = document.createElement('div');
+      messageDiv.classList.add('message-bubble');
+      messageDiv.classList.add(sender === 'user' ? 'user-message' : 'ai-message');
+      messageDiv.textContent = text;
+      chatMessages.appendChild(messageDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function showLoadingIndicator() {
+      const loadingDiv = document.createElement('div');
+      loadingDiv.id = 'loading-indicator';
+      loadingDiv.classList.add('loading-indicator');
+      loadingDiv.textContent = 'Typing...';
+      chatMessages.appendChild(loadingDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function removeLoadingIndicator() {
+      const loadingDiv = document.getElementById('loading-indicator');
+      if (loadingDiv) loadingDiv.remove();
+    }
+
+    async function sendMessage() {
+      const message = userInput.value.trim();
+      if (!message) return;
+
+      addMessage(message, 'user');
+      userInput.value = '';
+      sendButton.disabled = true;
+      showLoadingIndicator();
+
+      try {
+        const chatHistory = [{ role: "user", parts: [{ text: message }] }];
+        const payload = { contents: chatHistory };
+        const apiKey = "AIzaSyCxZCpJ0NmNRmVinTwwG3RcBYkUU-snEtQ";
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(`API request failed: ${errorData.error?.message || 'Unknown error'}`);
+        }
+
+        const result = await response.json();
+        removeLoadingIndicator();
+
+        const aiText = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (aiText) {
+          addMessage(aiText, 'ai');
+        } else {
+          addMessage("Sorry, I couldn't get a response from Gemini. Please try again.", 'ai');
+        }
+
+      } catch (error) {
+        removeLoadingIndicator();
+        addMessage("Oops! Something went wrong. Try again later.", 'ai');
+        console.error("Error:", error);
+      } finally {
+        sendButton.disabled = false;
+        userInput.focus();
+      }
+    }
+
+    sendButton.addEventListener('click', sendMessage);
+    userInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') sendMessage();
+    });
+
+    window.onload = () => userInput.focus();
+  </script>
+</body>
+</html>

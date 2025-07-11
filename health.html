@@ -1,0 +1,1557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Tracker - Productivity Hub</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        /* CSS RESET & BASE STYLES */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #a0c4ff;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 2rem;
+        }
+
+        .content-body {
+            width: 100%;
+            max-width: 1600px;
+            background-color: #ffffff;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* HEADER */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #eef2ff;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1e3a8a;
+        }
+
+        .back-btn {
+            background-color: #4f46e5;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.8rem 1.5rem;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.2s ease;
+        }
+
+        .back-btn:hover {
+            background-color: #3730a3;
+        }
+
+        /* HEALTH OVERVIEW */
+        .health-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .health-card {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .health-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+        }
+
+        .health-card.weight::before {
+            background: linear-gradient(90deg, #4f46e5, #3730a3);
+        }
+
+        .health-card.bmi::before {
+            background: linear-gradient(90deg, #10b981, #059669);
+        }
+
+        .health-card.water::before {
+            background: linear-gradient(90deg, #06b6d4, #0891b2);
+        }
+
+        .health-card.steps::before {
+            background: linear-gradient(90deg, #f59e0b, #d97706);
+        }
+
+        .health-card.calories::before {
+            background: linear-gradient(90deg, #ef4444, #dc2626);
+        }
+
+        .health-card.sleep::before {
+            background: linear-gradient(90deg, #8b5cf6, #7c3aed);
+        }
+
+        .health-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .health-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1e3a8a;
+            margin-bottom: 0.5rem;
+        }
+
+        .health-label {
+            font-size: 0.9rem;
+            color: #6b7280;
+            margin-bottom: 0.5rem;
+        }
+
+        .health-status {
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+        }
+
+        .health-status.excellent {
+            background-color: #dcfce7;
+            color: #16a34a;
+        }
+
+        .health-status.good {
+            background-color: #fef3c7;
+            color: #d97706;
+        }
+
+        .health-status.needs-attention {
+            background-color: #fee2e2;
+            color: #dc2626;
+        }
+
+        /* MAIN DASHBOARD */
+        .main-dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        /* DAILY TRACKER */
+        .daily-tracker {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 1.5rem;
+        }
+
+        .daily-tracker h3 {
+            color: #1e3a8a;
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+        }
+
+        .tracker-item {
+            background-color: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .tracker-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .tracker-title {
+            font-weight: 600;
+            color: #1e3a8a;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tracker-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #10b981;
+        }
+
+        .tracker-progress {
+            width: 100%;
+            height: 10px;
+            background-color: #e5e7eb;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .tracker-progress-fill {
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        .tracker-progress-fill.water {
+            background: linear-gradient(90deg, #06b6d4, #0891b2);
+        }
+
+        .tracker-progress-fill.steps {
+            background: linear-gradient(90deg, #f59e0b, #d97706);
+        }
+
+        .tracker-progress-fill.calories {
+            background: linear-gradient(90deg, #ef4444, #dc2626);
+        }
+
+        .tracker-progress-fill.exercise {
+            background: linear-gradient(90deg, #8b5cf6, #7c3aed);
+        }
+
+        .tracker-controls {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .control-btn {
+            background-color: #4f46e5;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 0.5rem 1rem;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .control-btn:hover {
+            background-color: #3730a3;
+        }
+
+        .control-btn.increment {
+            background-color: #10b981;
+        }
+
+        .control-btn.increment:hover {
+            background-color: #059669;
+        }
+
+        .control-btn.decrement {
+            background-color: #ef4444;
+        }
+
+        .control-btn.decrement:hover {
+            background-color: #dc2626;
+        }
+
+        /* HEALTH METRICS */
+        .health-metrics {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 1.5rem;
+        }
+
+        .health-metrics h3 {
+            color: #1e3a8a;
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+        }
+
+        .metric-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 0.8rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .submit-btn {
+            background-color: #10b981;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.8rem 1.5rem;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .submit-btn:hover {
+            background-color: #059669;
+        }
+
+        .recent-measurements {
+            margin-top: 1.5rem;
+        }
+
+        .measurement-item {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.8rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .measurement-details {
+            flex: 1;
+        }
+
+        .measurement-type {
+            font-weight: 600;
+            color: #1e3a8a;
+        }
+
+        .measurement-value {
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+
+        .measurement-date {
+            font-size: 0.8rem;
+            color: #9ca3af;
+        }
+
+        /* CHARTS SECTION */
+        .charts-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-panel {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 1.5rem;
+        }
+
+        .chart-panel h3 {
+            color: #1e3a8a;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .chart-container {
+            height: 300px;
+            margin-bottom: 1rem;
+        }
+
+        /* WELLNESS SECTION */
+        .wellness-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .wellness-panel {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 1.5rem;
+        }
+
+        .wellness-panel h3 {
+            color: #1e3a8a;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        /* MOOD TRACKER */
+        .mood-tracker {
+            text-align: center;
+        }
+
+        .mood-options {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 1rem;
+        }
+
+        .mood-btn {
+            font-size: 2rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 10px;
+            transition: background-color 0.2s ease;
+        }
+
+        .mood-btn:hover {
+            background-color: #f3f4f6;
+        }
+
+        .mood-btn.selected {
+            background-color: #eef2ff;
+            border: 2px solid #4f46e5;
+        }
+
+        /* SLEEP TRACKER */
+        .sleep-input {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .sleep-input input {
+            flex: 1;
+            padding: 0.5rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .sleep-quality {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .quality-btn {
+            flex: 1;
+            padding: 0.5rem;
+            margin: 0 0.2rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            background-color: white;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.8rem;
+            transition: all 0.2s ease;
+        }
+
+        .quality-btn.selected {
+            background-color: #4f46e5;
+            color: white;
+            border-color: #4f46e5;
+        }
+
+        /* MEDICATION TRACKER */
+        .medication-item {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.8rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .medication-name {
+            font-weight: 600;
+            color: #1e3a8a;
+        }
+
+        .medication-time {
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+
+        .medication-status {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .status-btn {
+            padding: 0.3rem 0.8rem;
+            border: none;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .status-btn.taken {
+            background-color: #dcfce7;
+            color: #16a34a;
+        }
+
+        .status-btn.missed {
+            background-color: #fee2e2;
+            color: #dc2626;
+        }
+
+        /* GOALS SECTION */
+        .goals-section {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 1.5rem;
+        }
+
+        .goals-section h3 {
+            color: #1e3a8a;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .goal-item {
+            background-color: white;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .goal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .goal-name {
+            font-weight: 600;
+            color: #1e3a8a;
+        }
+
+        .goal-target {
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+
+        .goal-progress {
+            width: 100%;
+            height: 8px;
+            background-color: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+
+        .goal-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981, #059669);
+            transition: width 0.3s ease;
+        }
+
+        .goal-status {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+
+        /* THEME TOGGLE BUTTON */
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .theme-btn {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 25px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .theme-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .theme-btn .moon-icon {
+            display: none;
+        }
+
+        /* DARK MODE STYLES */
+        [data-theme="dark"] {
+            background-color: #1e293b;
+        }
+
+        [data-theme="dark"] .content-body {
+            background-color: #334155;
+            color: #e2e8f0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        [data-theme="dark"] .header h1 {
+            color: #60a5fa;
+        }
+
+        [data-theme="dark"] .back-btn {
+            background-color: #3b82f6;
+        }
+
+        [data-theme="dark"] .back-btn:hover {
+            background-color: #2563eb;
+        }
+
+        [data-theme="dark"] .health-card {
+            background-color: #475569;
+            border-color: #64748b;
+            color: #e2e8f0;
+        }
+
+        [data-theme="dark"] .health-value {
+            color: #60a5fa;
+        }
+
+        [data-theme="dark"] .health-label {
+            color: #94a3b8;
+        }
+
+        [data-theme="dark"] .health-status {
+            color: #cbd5e1;
+        }
+
+        [data-theme="dark"] .metrics-form,
+        [data-theme="dark"] .wellness-card,
+        [data-theme="dark"] .chart-container,
+        [data-theme="dark"] .goals-section {
+            background-color: #475569;
+            border-color: #64748b;
+            color: #e2e8f0;
+        }
+
+        [data-theme="dark"] .metrics-form h3,
+        [data-theme="dark"] .wellness-card h3,
+        [data-theme="dark"] .chart-container h3,
+        [data-theme="dark"] .goals-section h3 {
+            color: #60a5fa;
+        }
+
+        [data-theme="dark"] .form-group input,
+        [data-theme="dark"] .form-group select,
+        [data-theme="dark"] .form-group textarea {
+            background-color: #1e293b;
+            border-color: #475569;
+            color: #e2e8f0;
+        }
+
+        [data-theme="dark"] .form-group input::placeholder,
+        [data-theme="dark"] .form-group textarea::placeholder {
+            color: #94a3b8;
+        }
+
+        [data-theme="dark"] .form-group label {
+            color: #cbd5e1;
+        }
+
+        [data-theme="dark"] .quick-btn {
+            background-color: #334155;
+            border-color: #475569;
+            color: #e2e8f0;
+        }
+
+        [data-theme="dark"] .quick-btn:hover {
+            background-color: #475569;
+        }
+
+        [data-theme="dark"] .submit-btn {
+            background-color: #059669;
+        }
+
+        [data-theme="dark"] .submit-btn:hover {
+            background-color: #047857;
+        }
+
+        [data-theme="dark"] .wellness-metric {
+            background-color: #1e293b;
+            border-color: #475569;
+        }
+
+        [data-theme="dark"] .wellness-metric h4 {
+            color: #60a5fa;
+        }
+
+        [data-theme="dark"] .wellness-metric .value {
+            color: #cbd5e1;
+        }
+
+        [data-theme="dark"] .wellness-metric .label {
+            color: #94a3b8;
+        }
+
+        [data-theme="dark"] .goal-item {
+            background-color: #1e293b;
+            border-color: #475569;
+        }
+
+        [data-theme="dark"] .goal-title {
+            color: #60a5fa;
+        }
+
+        [data-theme="dark"] .goal-status {
+            color: #94a3b8;
+        }
+
+        [data-theme="dark"] .theme-btn {
+            background-color: #475569;
+            border-color: #64748b;
+            color: #e2e8f0;
+        }
+
+        [data-theme="dark"] .theme-btn .sun-icon {
+            display: none;
+        }
+
+        [data-theme="dark"] .theme-btn .moon-icon {
+            display: inline;
+        }
+
+        /* SMOOTH TRANSITIONS FOR THEME CHANGE */
+        *, *::before, *::after {
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .content-body, .health-card, .metrics-form, .wellness-card, .chart-container, .goals-section, .theme-btn, .form-group input, .form-group select, .form-group textarea {
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        /* RESPONSIVE DESIGN */
+        @media (max-width: 1024px) {
+            .main-dashboard,
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .wellness-section {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+            
+            .content-body {
+                padding: 1.5rem;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .health-overview {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .wellness-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <main class="content-body">
+        <header class="header">
+            <h1>🏥 Health Tracker</h1>
+            <div class="header-actions">
+                <button id="theme-toggle-btn" class="theme-btn">
+                    <span class="sun-icon">☀️</span>
+                    <span class="moon-icon">🌙</span>
+                </button>
+                <a href="index.html" class="back-btn">← Back to Home</a>
+            </div>
+        </header>
+
+        <!-- Health Overview -->
+        <div class="health-overview">
+            <div class="health-card weight">
+                <div class="health-icon">⚖️</div>
+                <div class="health-value" id="currentWeight">70.5 kg</div>
+                <div class="health-label">Current Weight</div>
+                <div class="health-status good">Stable</div>
+            </div>
+            <div class="health-card bmi">
+                <div class="health-icon">📊</div>
+                <div class="health-value" id="currentBMI">22.8</div>
+                <div class="health-label">BMI</div>
+                <div class="health-status excellent">Normal</div>
+            </div>
+            <div class="health-card water">
+                <div class="health-icon">💧</div>
+                <div class="health-value" id="waterIntake">1.2L</div>
+                <div class="health-label">Water Today</div>
+                <div class="health-status needs-attention">60%</div>
+            </div>
+            <div class="health-card steps">
+                <div class="health-icon">👟</div>
+                <div class="health-value" id="stepsCount">7,245</div>
+                <div class="health-label">Steps Today</div>
+                <div class="health-status good">72%</div>
+            </div>
+            <div class="health-card calories">
+                <div class="health-icon">🔥</div>
+                <div class="health-value" id="caloriesBurned">420</div>
+                <div class="health-label">Calories Burned</div>
+                <div class="health-status good">Active</div>
+            </div>
+            <div class="health-card sleep">
+                <div class="health-icon">😴</div>
+                <div class="health-value" id="sleepHours">7.5h</div>
+                <div class="health-label">Sleep Last Night</div>
+                <div class="health-status excellent">Good</div>
+            </div>
+        </div>
+
+        <!-- Main Dashboard -->
+        <div class="main-dashboard">
+            <!-- Daily Tracker -->
+            <section class="daily-tracker">
+                <h3>Daily Tracker</h3>
+                
+                <div class="tracker-item">
+                    <div class="tracker-header">
+                        <div class="tracker-title">💧 Water Intake</div>
+                        <div class="tracker-value"><span id="waterCurrent">1.2</span> / 2.5 L</div>
+                    </div>
+                    <div class="tracker-progress">
+                        <div class="tracker-progress-fill water" style="width: 48%"></div>
+                    </div>
+                    <div class="tracker-controls">
+                        <button class="control-btn decrement" onclick="healthTracker.updateWater(-0.25)">-250ml</button>
+                        <button class="control-btn increment" onclick="healthTracker.updateWater(0.25)">+250ml</button>
+                    </div>
+                </div>
+
+                <div class="tracker-item">
+                    <div class="tracker-header">
+                        <div class="tracker-title">👟 Steps</div>
+                        <div class="tracker-value"><span id="stepsCurrent">7,245</span> / 10,000</div>
+                    </div>
+                    <div class="tracker-progress">
+                        <div class="tracker-progress-fill steps" style="width: 72%"></div>
+                    </div>
+                    <div class="tracker-controls">
+                        <button class="control-btn decrement" onclick="healthTracker.updateSteps(-500)">-500</button>
+                        <button class="control-btn increment" onclick="healthTracker.updateSteps(500)">+500</button>
+                    </div>
+                </div>
+
+                <div class="tracker-item">
+                    <div class="tracker-header">
+                        <div class="tracker-title">🔥 Calories Burned</div>
+                        <div class="tracker-value"><span id="caloriesCurrent">420</span> / 600</div>
+                    </div>
+                    <div class="tracker-progress">
+                        <div class="tracker-progress-fill calories" style="width: 70%"></div>
+                    </div>
+                    <div class="tracker-controls">
+                        <button class="control-btn decrement" onclick="healthTracker.updateCalories(-50)">-50</button>
+                        <button class="control-btn increment" onclick="healthTracker.updateCalories(50)">+50</button>
+                    </div>
+                </div>
+
+                <div class="tracker-item">
+                    <div class="tracker-header">
+                        <div class="tracker-title">💪 Exercise</div>
+                        <div class="tracker-value"><span id="exerciseCurrent">30</span> / 60 min</div>
+                    </div>
+                    <div class="tracker-progress">
+                        <div class="tracker-progress-fill exercise" style="width: 50%"></div>
+                    </div>
+                    <div class="tracker-controls">
+                        <button class="control-btn decrement" onclick="healthTracker.updateExercise(-15)">-15min</button>
+                        <button class="control-btn increment" onclick="healthTracker.updateExercise(15)">+15min</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Health Metrics -->
+            <section class="health-metrics">
+                <h3>Health Metrics</h3>
+                
+                <form class="metric-form" id="healthMetricForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="metricType">Metric Type</label>
+                            <select id="metricType">
+                                <option value="weight">Weight</option>
+                                <option value="blood-pressure">Blood Pressure</option>
+                                <option value="heart-rate">Heart Rate</option>
+                                <option value="blood-sugar">Blood Sugar</option>
+                                <option value="body-fat">Body Fat %</option>
+                                <option value="temperature">Temperature</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="metricValue">Value</label>
+                            <input type="text" id="metricValue" placeholder="Enter value" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="metricDate">Date</label>
+                            <input type="date" id="metricDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="metricTime">Time</label>
+                            <input type="time" id="metricTime" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="metricNotes">Notes (Optional)</label>
+                        <input type="text" id="metricNotes" placeholder="Additional notes...">
+                    </div>
+                    
+                    <button type="submit" class="submit-btn">Record Metric</button>
+                </form>
+
+                <div class="recent-measurements">
+                    <h4 style="color: #1e3a8a; margin-bottom: 1rem;">Recent Measurements</h4>
+                    <div id="recentMeasurements">
+                        <div class="measurement-item">
+                            <div class="measurement-details">
+                                <div class="measurement-type">Weight</div>
+                                <div class="measurement-value">70.5 kg</div>
+                                <div class="measurement-date">Today, 8:30 AM</div>
+                            </div>
+                        </div>
+                        <div class="measurement-item">
+                            <div class="measurement-details">
+                                <div class="measurement-type">Blood Pressure</div>
+                                <div class="measurement-value">120/80 mmHg</div>
+                                <div class="measurement-date">Yesterday, 7:00 PM</div>
+                            </div>
+                        </div>
+                        <div class="measurement-item">
+                            <div class="measurement-details">
+                                <div class="measurement-type">Heart Rate</div>
+                                <div class="measurement-value">72 bpm</div>
+                                <div class="measurement-date">Yesterday, 7:00 PM</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-section">
+            <section class="chart-panel">
+                <h3>Weight Progress</h3>
+                <div class="chart-container">
+                    <canvas id="weightChart"></canvas>
+                </div>
+            </section>
+            
+            <section class="chart-panel">
+                <h3>Activity Overview</h3>
+                <div class="chart-container">
+                    <canvas id="activityChart"></canvas>
+                </div>
+            </section>
+        </div>
+
+        <!-- Wellness Section -->
+        <div class="wellness-section">
+            <!-- Mood Tracker -->
+            <section class="wellness-panel mood-tracker">
+                <h3>😊 Mood Tracker</h3>
+                <div class="mood-options">
+                    <button class="mood-btn" data-mood="very-happy">😄</button>
+                    <button class="mood-btn" data-mood="happy">😊</button>
+                    <button class="mood-btn" data-mood="neutral">😐</button>
+                    <button class="mood-btn" data-mood="sad">😔</button>
+                    <button class="mood-btn" data-mood="very-sad">😢</button>
+                </div>
+                <button class="submit-btn" onclick="healthTracker.recordMood()">Record Mood</button>
+            </section>
+
+            <!-- Sleep Tracker -->
+            <section class="wellness-panel">
+                <h3>😴 Sleep Tracker</h3>
+                <div class="sleep-input">
+                    <input type="time" id="sleepTime" placeholder="Bedtime">
+                    <input type="time" id="wakeTime" placeholder="Wake time">
+                </div>
+                <div class="sleep-quality">
+                    <button class="quality-btn" data-quality="poor">Poor</button>
+                    <button class="quality-btn" data-quality="fair">Fair</button>
+                    <button class="quality-btn" data-quality="good">Good</button>
+                    <button class="quality-btn" data-quality="excellent">Excellent</button>
+                </div>
+                <button class="submit-btn" onclick="healthTracker.recordSleep()">Record Sleep</button>
+            </section>
+
+            <!-- Medication Tracker -->
+            <section class="wellness-panel">
+                <h3>💊 Medications</h3>
+                <div id="medicationList">
+                    <div class="medication-item">
+                        <div>
+                            <div class="medication-name">Vitamin D</div>
+                            <div class="medication-time">9:00 AM</div>
+                        </div>
+                        <div class="medication-status">
+                            <button class="status-btn taken">Taken</button>
+                        </div>
+                    </div>
+                    <div class="medication-item">
+                        <div>
+                            <div class="medication-name">Omega-3</div>
+                            <div class="medication-time">6:00 PM</div>
+                        </div>
+                        <div class="medication-status">
+                            <button class="status-btn missed">Missed</button>
+                        </div>
+                    </div>
+                    <div class="medication-item">
+                        <div>
+                            <div class="medication-name">Multivitamin</div>
+                            <div class="medication-time">8:00 AM</div>
+                        </div>
+                        <div class="medication-status">
+                            <button class="status-btn taken">Taken</button>
+                        </div>
+                    </div>
+                </div>
+                <button class="submit-btn" onclick="healthTracker.addMedication()">Add Medication</button>
+            </section>
+        </div>
+
+        <!-- Health Goals -->
+        <section class="goals-section">
+            <h3>🎯 Health Goals</h3>
+            <div class="goal-item">
+                <div class="goal-header">
+                    <div class="goal-name">Lose 5 kg</div>
+                    <div class="goal-target">Target: 65 kg</div>
+                </div>
+                <div class="goal-progress">
+                    <div class="goal-progress-fill" style="width: 60%"></div>
+                </div>
+                <div class="goal-status">
+                    <span>Progress: 3 kg lost</span>
+                    <span>2 kg to go</span>
+                </div>
+            </div>
+            
+            <div class="goal-item">
+                <div class="goal-header">
+                    <div class="goal-name">Walk 10,000 steps daily</div>
+                    <div class="goal-target">7-day average</div>
+                </div>
+                <div class="goal-progress">
+                    <div class="goal-progress-fill" style="width: 75%"></div>
+                </div>
+                <div class="goal-status">
+                    <span>Progress: 7,500 avg steps</span>
+                    <span>75% achieved</span>
+                </div>
+            </div>
+            
+            <div class="goal-item">
+                <div class="goal-header">
+                    <div class="goal-name">Drink 2.5L water daily</div>
+                    <div class="goal-target">Hydration goal</div>
+                </div>
+                <div class="goal-progress">
+                    <div class="goal-progress-fill" style="width: 45%"></div>
+                </div>
+                <div class="goal-status">
+                    <span>Progress: 1.1L avg</span>
+                    <span>45% achieved</span>
+                </div>
+            </div>
+            
+            <div class="goal-item">
+                <div class="goal-header">
+                    <div class="goal-name">Sleep 8 hours nightly</div>
+                    <div class="goal-target">Sleep quality</div>
+                </div>
+                <div class="goal-progress">
+                    <div class="goal-progress-fill" style="width: 90%"></div>
+                </div>
+                <div class="goal-status">
+                    <span>Progress: 7.2h avg</span>
+                    <span>90% achieved</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Theme Toggle Functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeToggleBtn = document.getElementById('theme-toggle-btn');
+            const body = document.body;
+            
+            // Check for saved theme preference or default to light mode
+            const currentTheme = localStorage.getItem('theme') || 'light';
+            body.setAttribute('data-theme', currentTheme);
+
+            // Theme toggle event listener
+            themeToggleBtn.addEventListener('click', () => {
+                const currentTheme = body.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                
+                body.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                
+                // Add a little animation effect
+                themeToggleBtn.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    themeToggleBtn.style.transform = 'scale(1)';
+                }, 150);
+            });
+        });
+
+        // Health Tracker Application
+        class HealthTracker {
+            constructor() {
+                this.dailyData = JSON.parse(localStorage.getItem('healthData')) || {
+                    water: 1.2,
+                    steps: 7245,
+                    calories: 420,
+                    exercise: 30
+                };
+                this.healthMetrics = JSON.parse(localStorage.getItem('healthMetrics')) || [];
+                this.currentMood = null;
+                this.currentSleepQuality = null;
+                this.init();
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.setDefaultDate();
+                this.initializeCharts();
+            }
+
+            setupEventListeners() {
+                // Health metric form
+                document.getElementById('healthMetricForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.recordHealthMetric();
+                });
+
+                // Mood tracker
+                document.querySelectorAll('.mood-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+                        e.target.classList.add('selected');
+                        this.currentMood = e.target.dataset.mood;
+                    });
+                });
+
+                // Sleep quality tracker
+                document.querySelectorAll('.quality-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('.quality-btn').forEach(b => b.classList.remove('selected'));
+                        e.target.classList.add('selected');
+                        this.currentSleepQuality = e.target.dataset.quality;
+                    });
+                });
+            }
+
+            setDefaultDate() {
+                const today = new Date().toISOString().split('T')[0];
+                const now = new Date().toTimeString().split(' ')[0].slice(0, 5);
+                document.getElementById('metricDate').value = today;
+                document.getElementById('metricTime').value = now;
+            }
+
+            updateWater(amount) {
+                this.dailyData.water = Math.max(0, Math.round((this.dailyData.water + amount) * 10) / 10);
+                this.updateDisplay();
+                this.saveData();
+            }
+
+            updateSteps(amount) {
+                this.dailyData.steps = Math.max(0, this.dailyData.steps + amount);
+                this.updateDisplay();
+                this.saveData();
+            }
+
+            updateCalories(amount) {
+                this.dailyData.calories = Math.max(0, this.dailyData.calories + amount);
+                this.updateDisplay();
+                this.saveData();
+            }
+
+            updateExercise(amount) {
+                this.dailyData.exercise = Math.max(0, this.dailyData.exercise + amount);
+                this.updateDisplay();
+                this.saveData();
+            }
+
+            updateDisplay() {
+                document.getElementById('waterCurrent').textContent = this.dailyData.water;
+                document.getElementById('stepsCurrent').textContent = this.dailyData.steps.toLocaleString();
+                document.getElementById('caloriesCurrent').textContent = this.dailyData.calories;
+                document.getElementById('exerciseCurrent').textContent = this.dailyData.exercise;
+
+                // Update overview cards
+                document.getElementById('waterIntake').textContent = `${this.dailyData.water}L`;
+                document.getElementById('stepsCount').textContent = this.dailyData.steps.toLocaleString();
+                document.getElementById('caloriesBurned').textContent = this.dailyData.calories;
+
+                // Update progress bars
+                const waterPercent = (this.dailyData.water / 2.5) * 100;
+                const stepsPercent = (this.dailyData.steps / 10000) * 100;
+                const caloriesPercent = (this.dailyData.calories / 600) * 100;
+                const exercisePercent = (this.dailyData.exercise / 60) * 100;
+
+                document.querySelector('.tracker-progress-fill.water').style.width = `${Math.min(waterPercent, 100)}%`;
+                document.querySelector('.tracker-progress-fill.steps').style.width = `${Math.min(stepsPercent, 100)}%`;
+                document.querySelector('.tracker-progress-fill.calories').style.width = `${Math.min(caloriesPercent, 100)}%`;
+                document.querySelector('.tracker-progress-fill.exercise').style.width = `${Math.min(exercisePercent, 100)}%`;
+            }
+
+            recordHealthMetric() {
+                const metric = {
+                    id: Date.now(),
+                    type: document.getElementById('metricType').value,
+                    value: document.getElementById('metricValue').value,
+                    date: document.getElementById('metricDate').value,
+                    time: document.getElementById('metricTime').value,
+                    notes: document.getElementById('metricNotes').value,
+                    timestamp: new Date().toISOString()
+                };
+
+                this.healthMetrics.push(metric);
+                this.saveMetrics();
+                this.renderRecentMeasurements();
+                this.clearMetricForm();
+                
+                alert('Health metric recorded successfully!');
+            }
+
+            renderRecentMeasurements() {
+                const recentMeasurements = document.getElementById('recentMeasurements');
+                const sortedMetrics = this.healthMetrics
+                    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+                    .slice(0, 5);
+
+                recentMeasurements.innerHTML = sortedMetrics.map(metric => {
+                    const date = new Date(metric.timestamp);
+                    const timeAgo = this.getTimeAgo(date);
+                    
+                    return `
+                        <div class="measurement-item">
+                            <div class="measurement-details">
+                                <div class="measurement-type">${this.getMetricDisplayName(metric.type)}</div>
+                                <div class="measurement-value">${metric.value}</div>
+                                <div class="measurement-date">${timeAgo}</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            getMetricDisplayName(type) {
+                const names = {
+                    'weight': 'Weight',
+                    'blood-pressure': 'Blood Pressure',
+                    'heart-rate': 'Heart Rate',
+                    'blood-sugar': 'Blood Sugar',
+                    'body-fat': 'Body Fat %',
+                    'temperature': 'Temperature'
+                };
+                return names[type] || type;
+            }
+
+            getTimeAgo(date) {
+                const now = new Date();
+                const diffInMinutes = Math.floor((now - date) / (1000 * 60));
+                
+                if (diffInMinutes < 60) {
+                    return `${diffInMinutes} minutes ago`;
+                } else if (diffInMinutes < 1440) {
+                    return `${Math.floor(diffInMinutes / 60)} hours ago`;
+                } else {
+                    return `${Math.floor(diffInMinutes / 1440)} days ago`;
+                }
+            }
+
+            recordMood() {
+                if (!this.currentMood) {
+                    alert('Please select a mood first!');
+                    return;
+                }
+                
+                const moodRecord = {
+                    mood: this.currentMood,
+                    date: new Date().toISOString(),
+                    timestamp: Date.now()
+                };
+                
+                // Save mood record (you can extend this to save in localStorage)
+                alert(`Mood recorded: ${this.currentMood}`);
+                
+                // Reset selection
+                document.querySelectorAll('.mood-btn').forEach(btn => btn.classList.remove('selected'));
+                this.currentMood = null;
+            }
+
+            recordSleep() {
+                const sleepTime = document.getElementById('sleepTime').value;
+                const wakeTime = document.getElementById('wakeTime').value;
+                
+                if (!sleepTime || !wakeTime) {
+                    alert('Please fill in both sleep and wake times!');
+                    return;
+                }
+                
+                if (!this.currentSleepQuality) {
+                    alert('Please select sleep quality!');
+                    return;
+                }
+                
+                const sleepRecord = {
+                    sleepTime,
+                    wakeTime,
+                    quality: this.currentSleepQuality,
+                    date: new Date().toISOString(),
+                    timestamp: Date.now()
+                };
+                
+                // Save sleep record
+                alert(`Sleep recorded: ${sleepTime} to ${wakeTime}, Quality: ${this.currentSleepQuality}`);
+                
+                // Reset form
+                document.getElementById('sleepTime').value = '';
+                document.getElementById('wakeTime').value = '';
+                document.querySelectorAll('.quality-btn').forEach(btn => btn.classList.remove('selected'));
+                this.currentSleepQuality = null;
+
+// neeche waali delete ki jaa sakti hai upto blue curly 
+                // 😴 Sleep time double-click shortcut
+if (document.getElementById('sleepTime')) {
+    document.getElementById('sleepTime').addEventListener('dblclick', () => {
+        const now = new Date();
+        const time = now.toTimeString().slice(0,5);
+        document.getElementById('sleepTime').value = time;
+    });
+}
+            }
+
+            addMedication() {
+                const medicationName = prompt('Enter medication name:');
+                const medicationTime = prompt('Enter time (e.g., 9:00 AM):');
+                
+                if (medicationName && medicationTime) {
+                    // Add medication to list (you can extend this to save in localStorage)
+                    alert(`Medication added: ${medicationName} at ${medicationTime}`);
+                }
+            }
+
+            initializeCharts() {
+                this.initWeightChart();
+                this.initActivityChart();
+            }
+
+            initWeightChart() {
+                const ctx = document.getElementById('weightChart').getContext('2d');
+                
+                // Mock weight data for the last 30 days
+                const dates = [];
+                const weights = [];
+                const today = new Date();
+                
+                for (let i = 29; i >= 0; i--) {
+                    const date = new Date(today);
+                    date.setDate(date.getDate() - i);
+                    dates.push(date.toLocaleDateString());
+                    weights.push(70.5 + (Math.random() - 0.5) * 2); // Random weight variation
+                }
+
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: dates,
+                        datasets: [{
+                            label: 'Weight (kg)',
+                            data: weights,
+                            borderColor: '#4f46e5',
+                            backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        },
+                        scales: {
+                            x: {
+                                display: false // Hide x-axis labels for cleaner look
+                            },
+                            y: {
+                                beginAtZero: false
+                            }
+                        }
+                    }
+                });
+            }
+
+            initActivityChart() {
+                const ctx = document.getElementById('activityChart').getContext('2d');
+                
+                // Mock activity data for the last 7 days
+                const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                const stepsData = [8500, 9200, 7800, 10500, 6500, 11000, 7245];
+                const caloriesData = [380, 420, 350, 480, 320, 520, 420];
+
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: days,
+                        datasets: [{
+                            label: 'Steps',
+                            data: stepsData,
+                            backgroundColor: 'rgba(245, 158, 11, 0.8)',
+                            borderColor: '#f59e0b',
+                            borderWidth: 1,
+                            yAxisID: 'y'
+                        }, {
+                            label: 'Calories',
+                            data: caloriesData,
+                            backgroundColor: 'rgba(239, 68, 68, 0.8)',
+                            borderColor: '#ef4444',
+                            borderWidth: 1,
+                            yAxisID: 'y1'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                type: 'linear',
+                                display: true,
+                                position: 'left',
+                            },
+                            y1: {
+                                type: 'linear',
+                                display: true,
+                                position: 'right',
+                                grid: {
+                                    drawOnChartArea: false,
+                                },
+                            }
+                        }
+                    }
+                });
+            }
+
+            clearMetricForm() {
+                document.getElementById('metricValue').value = '';
+                document.getElementById('metricNotes').value = '';
+                this.setDefaultDate();
+            }
+
+            saveData() {
+                localStorage.setItem('healthData', JSON.stringify(this.dailyData));
+            }
+
+            saveMetrics() {
+                localStorage.setItem('healthMetrics', JSON.stringify(this.healthMetrics));
+            }
+        }
+
+        // Initialize the Health Tracker
+        const healthTracker = new HealthTracker();
+        
+        // Initial display update
+        healthTracker.updateDisplay();
+    </script>
+
+</body>
+</html>

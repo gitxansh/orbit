@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Tracker - Simplified</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        /* Base Styles */
+        :root {
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-color: #334155;
+            --primary-color: #4f46e5;
+            --primary-text: #ffffff;
+            --border-color: #e2e8f0;
+            --heading-color: #1e3a8a;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 2rem;
+        }
+
+        /* Main Layout */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+        .header h1 { color: var(--heading-color); }
+        .back-btn {
+            background-color: var(--primary-color);
+            color: var(--primary-text);
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        /* Main Grid */
+        .health-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        .grid-panel {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .grid-panel h3 {
+            color: var(--heading-color);
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+        }
+
+        /* Daily Tracker */
+        .tracker-item { margin-bottom: 1.5rem; }
+        .tracker-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+        .tracker-title { font-weight: 600; }
+        .tracker-value { font-size: 0.9rem; color: #64748b; }
+        .tracker-progress { width: 100%; height: 8px; background-color: #e5e7eb; border-radius: 4px; overflow: hidden; }
+        .tracker-progress-fill { height: 100%; transition: width 0.3s ease; }
+        .water-fill { background-color: #38bdf8; }
+        .steps-fill { background-color: #f59e0b; }
+        
+        /* Chart */
+        .chart-container { height: 250px; }
+
+        /* Form */
+        .metric-form { display: flex; flex-direction: column; gap: 1rem; }
+        .form-row { display: flex; gap: 1rem; }
+        .form-group { flex: 1; display: flex; flex-direction: column; gap: 0.5rem; }
+        .form-group label { font-weight: 600; font-size: 0.9rem; }
+        .form-group input, .form-group select { padding: 0.7rem; border: 1px solid var(--border-color); border-radius: 8px; }
+        .submit-btn {
+            background-color: #10b981;
+            color: white;
+            border: none;
+            padding: 0.8rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            body { padding: 1rem; }
+            .health-grid { grid-template-columns: 1fr; }
+            .form-row { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+    <main>
+        <header class="header">
+            <h1>🏥 Health Tracker</h1>
+            <a href="index.html" class="back-btn">← Back to Home</a>
+        </header>
+
+        <div class="health-grid">
+            <section class="grid-panel">
+                <h3>Today's Activity</h3>
+                
+                <div class="tracker-item">
+                    <div class="tracker-header">
+                        <div class="tracker-title">💧 Water Intake</div>
+                        <div class="tracker-value"><span id="waterCurrent">1.2</span> / 2.5 L</div>
+                    </div>
+                    <div class="tracker-progress">
+                        <div id="waterProgress" class="tracker-progress-fill water-fill" style="width: 48%"></div>
+                    </div>
+                </div>
+
+                <div class="tracker-item">
+                    <div class="tracker-header">
+                        <div class="tracker-title">👟 Steps</div>
+                        <div class="tracker-value"><span id="stepsCurrent">7,245</span> / 10,000</div>
+                    </div>
+                    <div class="tracker-progress">
+                        <div id="stepsProgress" class="tracker-progress-fill steps-fill" style="width: 72%"></div>
+                    </div>
+                </div>
+
+                <h3>Log a Metric</h3>
+                <form class="metric-form" id="healthMetricForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="metricType">Metric</label>
+                            <select id="metricType">
+                                <option value="weight">Weight (kg)</option>
+                                <option value="sleep">Sleep (hours)</option>
+                                <option value="heart-rate">Heart Rate (bpm)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="metricValue">Value</label>
+                            <input type="number" step="0.1" id="metricValue" placeholder="e.g., 70.5" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="submit-btn">Record Metric</button>
+                </form>
+
+            </section>
+
+            <section class="grid-panel">
+                <h3>Weight Progress (Last 7 Days)</h3>
+                <div class="chart-container">
+                    <canvas id="weightChart"></canvas>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        class HealthTracker {
+            constructor() {
+                // Simplified data model
+                this.data = JSON.parse(localStorage.getItem('healthData')) || {
+                    water: 1.2,
+                    steps: 7245,
+                    weightLog: [
+                        { date: '2025-07-05', value: 71.0 }, { date: '2025-07-06', value: 70.8 },
+                        { date: '2025-07-07', value: 70.9 }, { date: '2025-07-08', value: 70.6 },
+                        { date: '2025-07-09', value: 70.7 }, { date: '2025-07-10', value: 70.5 },
+                        { date: '2025-07-11', value: 70.4 }
+                    ]
+                };
+                this.init();
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.updateDisplay();
+                this.initializeChart();
+            }
+
+            setupEventListeners() {
+                document.getElementById('healthMetricForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.recordMetric();
+                });
+            }
+
+            recordMetric() {
+                const type = document.getElementById('metricType').value;
+                const value = parseFloat(document.getElementById('metricValue').value);
+
+                if (isNaN(value)) {
+                    alert('Please enter a valid number.');
+                    return;
+                }
+
+                if (type === 'weight') {
+                    const today = new Date().toISOString().split('T')[0];
+                    this.data.weightLog.push({ date: today, value: value });
+                    // Keep the log to a reasonable size, e.g., last 30 entries
+                    if (this.data.weightLog.length > 30) this.data.weightLog.shift();
+                } else {
+                    // For other metrics, you could create similar logs
+                    this.data[type] = value;
+                }
+
+                this.saveData();
+                this.updateDisplay();
+                this.initializeChart(); // Redraw chart with new data
+                alert('Metric recorded successfully!');
+                document.getElementById('healthMetricForm').reset();
+            }
+
+            updateDisplay() {
+                // Update water display
+                document.getElementById('waterCurrent').textContent = this.data.water;
+                document.getElementById('waterProgress').style.width = `${(this.data.water / 2.5) * 100}%`;
+
+                // Update steps display
+                document.getElementById('stepsCurrent').textContent = this.data.steps.toLocaleString();
+                document.getElementById('stepsProgress').style.width = `${(this.data.steps / 10000) * 100}%`;
+            }
+
+            initializeChart() {
+                const ctx = document.getElementById('weightChart').getContext('2d');
+                
+                // Destroy existing chart instance if it exists
+                if (window.myWeightChart instanceof Chart) {
+                    window.myWeightChart.destroy();
+                }
+
+                const last7Days = this.data.weightLog.slice(-7);
+
+                window.myWeightChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: last7Days.map(item => new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })),
+                        datasets: [{
+                            label: 'Weight (kg)',
+                            data: last7Days.map(item => item.value),
+                            borderColor: '#4f46e5',
+                            backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                            fill: true,
+                            tension: 0.3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                    }
+                });
+            }
+
+            saveData() {
+                localStorage.setItem('healthData', JSON.stringify(this.data));
+            }
+        }
+
+        new HealthTracker();
+    });
+    </script>
+
+</body>
+</html>
